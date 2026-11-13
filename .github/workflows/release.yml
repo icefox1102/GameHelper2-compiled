@@ -1,0 +1,31 @@
+name: release
+
+# Triggered automatically when the source repo pushes a version tag here.
+# Packages the repo contents as a zip and creates a GitHub Release.
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Package
+        run: |
+          TAG="${{ github.ref_name }}"
+          zip -r "GameHelper2-${TAG}-win-x64.zip" . \
+            --exclude ".git/*" --exclude ".github/*"
+          echo "Created GameHelper2-${TAG}-win-x64.zip"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: GameHelper2-*-win-x64.zip
+          generate_release_notes: true
